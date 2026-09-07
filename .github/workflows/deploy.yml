@@ -33,3 +33,4 @@ jobs:
           aws cloudformation deploy \
             --template-file infra.yaml \
             --stack-name expense-tracker 
+            --parameter-overrides Iam_Instance_Profile=${{ secrets.EC2_INSTANCE_PROFILE }} 
