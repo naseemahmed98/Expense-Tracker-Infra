@@ -2,16 +2,13 @@ Resources:
   InstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-        GroupDescription: Allow HTTP and HTTPS
+        GroupDescription: Allow HTTP 
         SecurityGroupIngress:
           - IpProtocol: tcp
             FromPort: 80
             ToPort: 80
             CidrIp: 0.0.0.0/0
-          - IpProtocol: tcp
-            FromPort: 443
-            ToPort: 443
-            CidrIp: 0.0.0.0/0
+          
     
   Instance:
     Type: 'AWS::EC2::Instance'
@@ -20,11 +17,27 @@ Resources:
       ImageId: 'ami-0332d564d76dbd8d6'
       SecurityGroupIds:
         - !Ref InstanceSecurityGroup
+      IamInstanceProfile: ${{ EC2_INSTANCE_PROFILE }} 
       UserData:
         Fn::Base64: |
           #!/bin/bash
           sudo dnf update -y
-          sudo dnf install -y docker
+          sudo dnf install -y docker jq awscli
+          
+          DOCKER_CREDENTIALS=$(aws secretsmanager get-secret-value \
+          --secret-id docker_credentials \
+          --query SecretString \
+          --output text \
+          --region us-east-1)
+          
+          DOCKER_USERNAME=$(echo "$DOCKER_CREDENTIALS" | jq -r '.DOCKER_USERNAME')
+          DOCKER_PASSWORD=$(echo "$DOCKER_CREDENTIALS" | jq -r '.DOCKER_PASSWORD')
+
           sudo systemctl start docker
           sudo systemctl enable docker
+
+          echo "$DOCKER_PASSWORD" | sudo docker login \
+          -u "$DOCKER_USERNAME" \
+          --password-stdin
+
           sudo docker run -d -p 80:80 otisahmed10/expense_tracker
