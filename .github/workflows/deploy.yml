@@ -32,5 +32,5 @@ jobs:
         run: |
           aws cloudformation deploy \
             --template-file infra.yaml \
-            --stack-name expense-tracker 
+            --stack-name expense-tracker \
             --parameter-overrides IamInstanceProfileARN=${{ secrets.EC2_INSTANCE_PROFILE }} 
