@@ -1,5 +1,5 @@
 Parameters:
-  Iam_Instance_Profile:
+  IamInstanceProfileARN:
     Type: String
     NoEcho: true 
 
@@ -23,7 +23,7 @@ Resources:
       ImageId: 'ami-0332d564d76dbd8d6'
       SecurityGroupIds:
         - !Ref InstanceSecurityGroup
-      IamInstanceProfile: !Ref Iam_Instance_Profile
+      IamInstanceProfile: !Ref IamInstanceProfileARN
       UserData:
         Fn::Base64: |
           #!/bin/bash
